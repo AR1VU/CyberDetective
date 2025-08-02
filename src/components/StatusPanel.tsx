@@ -34,7 +34,7 @@ const StatusPanel: React.FC<StatusPanelProps> = ({ gameState }) => {
             <Shield className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
-            Cyber Detective
+            HACKER TYCOON
           </h2>
           <p className="text-gray-400">No active mission</p>
           <p className="text-sm text-gray-500 mt-2">Type "hack" to begin</p>
@@ -130,6 +130,7 @@ const StatusPanel: React.FC<StatusPanelProps> = ({ gameState }) => {
         <div className="space-y-2">
           {gameState.discoveredEvidence.map((evidence, index) => {
             const IconComponent = evidenceIcons[evidence as keyof typeof evidenceIcons] || FileText;
+            const rewardAmount = evidence === 'ai_analysis' ? 100 : 150;
             return (
               <div key={index} className="flex items-center text-sm bg-gradient-to-r from-gray-900/50 to-purple-900/20 p-3 rounded-lg border border-purple-500/20">
                 <IconComponent className="w-4 h-4 mr-3 text-cyan-400" />
@@ -137,7 +138,7 @@ const StatusPanel: React.FC<StatusPanelProps> = ({ gameState }) => {
                   <div className="text-purple-300 font-medium">
                     {evidence.replace(/_/g, ' ').toUpperCase()}
                   </div>
-                  <div className="text-xs text-gray-400">+{150} $HACK</div>
+                  <div className="text-xs text-gray-400">+{rewardAmount} $HACK</div>
                 </div>
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
               </div>
@@ -195,10 +196,10 @@ const StatusPanel: React.FC<StatusPanelProps> = ({ gameState }) => {
             logs
           </button>
           <button className="p-2 bg-gray-900/30 border border-purple-500/20 rounded text-purple-300 hover:bg-purple-900/20 transition-colors">
-            intercept
+            analyze
           </button>
           <button className="p-2 bg-gray-900/30 border border-purple-500/20 rounded text-purple-300 hover:bg-purple-900/20 transition-colors">
-            decrypt
+            hint
           </button>
         </div>
       </div>

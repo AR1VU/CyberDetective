@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Terminal as TerminalIcon, Shield, User, FileText, Database, MessageSquare, Search } from 'lucide-react';
 import { GameState, CaseFile } from '../types/game';
 import { generateCase } from '../utils/caseGenerator';
+import { AIInvestigationService } from '../utils/aiService';
 
 interface TerminalProps {
   gameState: GameState;
@@ -18,8 +19,10 @@ const Terminal: React.FC<TerminalProps> = ({ gameState, setGameState }) => {
   const [input, setInput] = useState('');
   const [lines, setLines] = useState<TerminalLine[]>([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [hintLevel, setHintLevel] = useState<'subtle' | 'moderate' | 'explicit'>('subtle');
   const terminalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const aiService = AIInvestigationService.getInstance();
 
   useEffect(() => {
     if (terminalRef.current) {
@@ -36,7 +39,7 @@ const Terminal: React.FC<TerminalProps> = ({ gameState, setGameState }) => {
   const initializeGame = () => {
     setLines([
       { type: 'system', content: '╔══════════════════════════════════════════════════════════════╗' },
-      { type: 'system', content: '║ Cyber Detective v1.0                                         ║' },
+      { type: 'system', content: '║ HACKER TYCOON v2.0 - Web3 Terminal Interface                ║' },
       { type: 'system', content: '║ Decentralized Hacking Operations Platform                    ║' },
       { type: 'system', content: '╚══════════════════════════════════════════════════════════════╝' },
       { type: 'output', content: '' },
@@ -60,17 +63,17 @@ const Terminal: React.FC<TerminalProps> = ({ gameState, setGameState }) => {
   const typewriterEffect = async (text: string, type: TerminalLine['type'] = 'output') => {
     setIsTyping(true);
     const chars = text.split('');
-    let currentText = '';
     
+    // Add initial empty line that we'll update
+    setLines(prev => [...prev, { type, content: '' }]);
+    
+    let currentText = '';
     for (let i = 0; i < chars.length; i++) {
       currentText += chars[i];
       setLines(prev => {
         const newLines = [...prev];
-        if (newLines[newLines.length - 1]?.type === 'system' && newLines[newLines.length - 1]?.content === 'PROCESSING...') {
-          newLines[newLines.length - 1] = { type, content: currentText };
-        } else {
-          newLines.push({ type, content: currentText });
-        }
+        // Update the last line (the one we added initially)
+        newLines[newLines.length - 1] = { type, content: currentText };
         return newLines;
       });
       await new Promise(resolve => setTimeout(resolve, 15));
@@ -80,7 +83,7 @@ const Terminal: React.FC<TerminalProps> = ({ gameState, setGameState }) => {
 
   const processCommand = async (command: string) => {
     const cmd = command.toLowerCase().trim();
-    addLine('input', `┌─[detective@cyber-forensics]─[~]`);
+    addLine('input', `┌─[hacker@tycoon]─[~]`);
     addLine('input', `└─$ ${command}`);
 
     if (!gameState.currentCase && cmd !== 'hack' && cmd !== 'help' && cmd !== 'wallet' && cmd !== 'nft') {
@@ -101,6 +104,10 @@ const Terminal: React.FC<TerminalProps> = ({ gameState, setGameState }) => {
         addLine('crypto', '║ 🔓 decrypt           - Decrypt captured data     ║');
         addLine('crypto', '║ ⚡ exploit           - Launch system exploit     ║');
         addLine('crypto', '║ 🎮 execute <name>    - Execute final payload     ║');
+        addLine('crypto', '║ 🤖 analyze           - AI evidence analysis      ║');
+        addLine('crypto', '║ 💡 hint              - Get investigation hint    ║');
+        addLine('crypto', '║ 🧠 ask <question>    - Ask AI investigator       ║');
+        addLine('crypto', '║ 📝 theory <theory>   - Test your theory          ║');
         addLine('crypto', '║ 💰 wallet            - Check $HACK balance       ║');
         addLine('crypto', '║ 🖼️  nft               - View NFT collection       ║');
         addLine('crypto', '║ 🧹 clear             - Clear terminal            ║');
@@ -299,12 +306,161 @@ const Terminal: React.FC<TerminalProps> = ({ gameState, setGameState }) => {
         addLine('warning', '💡 Tip: Stake NFTs to earn bonus $HACK tokens!');
         break;
 
+      case 'analyze':
+        if (!gameState.currentCase) break;
+        if (gameState.discoveredEvidence.length === 0) {
+          addLine('warning', '⚠️ No evidence collected yet. Gather intel first using: scan, logs, intercept, decrypt');
+          break;
+        }
+        
+        addLine('system', '🤖 INITIALIZING AI FORENSICS ANALYSIS...');
+        addLine('crypto', '🧠 Neural networks processing evidence...');
+        addLine('crypto', '🔍 Pattern recognition algorithms active...');
+        
+        try {
+          const analysis = await aiService.analyzeEvidence(gameState.discoveredEvidence, {
+            currentCase: gameState.currentCase,
+            discoveredEvidence: gameState.discoveredEvidence,
+            commandHistory: gameState.commandHistory,
+            suspectAnalysis: gameState.suspectAnalysis,
+            caseProgress: gameState.caseProgress
+          });
+          
+          addLine('output', '');
+          addLine('system', '╔═══════════════ AI ANALYSIS REPORT ═══════════════╗');
+          const analysisLines = analysis.split('\n');
+          analysisLines.forEach(line => {
+            if (line.trim()) {
+              addLine('crypto', `║ ${line.trim()}`);
+            }
+          });
+          addLine('system', '╚═══════════════════════════════════════════════════╝');
+          
+          if (!gameState.discoveredEvidence.includes('ai_analysis')) {
+            setGameState(prev => ({
+              ...prev,
+              discoveredEvidence: [...prev.discoveredEvidence, 'ai_analysis'],
+              caseProgress: Math.min(prev.caseProgress + 10, 100)
+            }));
+            addLine('success', '💎 [INTEL ACQUIRED: AI Analysis] +100 $HACK');
+          }
+        } catch (error) {
+          addLine('error', '❌ AI analysis system temporarily unavailable');
+        }
+        break;
+
+      case 'hint':
+        if (!gameState.currentCase) break;
+        
+        addLine('system', `💡 REQUESTING ${hintLevel.toUpperCase()} HINT...`);
+        addLine('crypto', '🔮 Consulting investigation database...');
+        
+        try {
+          const hint = await aiService.getHint(hintLevel, {
+            currentCase: gameState.currentCase,
+            discoveredEvidence: gameState.discoveredEvidence,
+            commandHistory: gameState.commandHistory,
+            suspectAnalysis: gameState.suspectAnalysis,
+            caseProgress: gameState.caseProgress
+          });
+          
+          addLine('output', '');
+          addLine('system', '╔═══════════════ INVESTIGATION HINT ═══════════════╗');
+          const hintLines = hint.split('\n');
+          hintLines.forEach(line => {
+            if (line.trim()) {
+              addLine('warning', `║ ${line.trim()}`);
+            }
+          });
+          addLine('system', '╚═══════════════════════════════════════════════════╝');
+          
+          // Escalate hint level for next time
+          if (hintLevel === 'subtle') setHintLevel('moderate');
+          else if (hintLevel === 'moderate') setHintLevel('explicit');
+          
+        } catch (error) {
+          addLine('error', '❌ Hint system temporarily unavailable');
+        }
+        break;
+
       case 'clear':
         setLines([]);
+        aiService.clearHistory();
         break;
 
       default:
-        if (cmd.startsWith('target ')) {
+        if (cmd.startsWith('ask ')) {
+          const question = command.substring(4).trim();
+          if (!question) {
+            addLine('error', '❌ Usage: ask <your question>');
+            break;
+          }
+          
+          addLine('system', '🤖 CONSULTING AI INVESTIGATOR...');
+          addLine('crypto', '🧠 Processing natural language query...');
+          
+          try {
+            const response = await aiService.getAIResponse(question, {
+              currentCase: gameState.currentCase,
+              discoveredEvidence: gameState.discoveredEvidence,
+              commandHistory: gameState.commandHistory,
+              suspectAnalysis: gameState.suspectAnalysis,
+              caseProgress: gameState.caseProgress
+            });
+            
+            addLine('output', '');
+            addLine('system', '╔═══════════════ AI INVESTIGATOR RESPONSE ═══════════════╗');
+            const responseLines = response.split('\n');
+            responseLines.forEach(line => {
+              if (line.trim()) {
+                addLine('crypto', `║ ${line.trim()}`);
+              }
+            });
+            addLine('system', '╚═══════════════════════════════════════════════════════╝');
+            
+          } catch (error) {
+            addLine('error', '❌ AI investigator temporarily unavailable');
+          }
+        } else if (cmd.startsWith('theory ')) {
+          const theory = command.substring(7).trim();
+          if (!theory) {
+            addLine('error', '❌ Usage: theory <your theory about the case>');
+            break;
+          }
+          
+          addLine('system', '📝 EVALUATING INVESTIGATION THEORY...');
+          addLine('crypto', '🔍 Cross-referencing with evidence database...');
+          
+          try {
+            const evaluation = await aiService.evaluateTheory(theory, {
+              currentCase: gameState.currentCase,
+              discoveredEvidence: gameState.discoveredEvidence,
+              commandHistory: gameState.commandHistory,
+              suspectAnalysis: gameState.suspectAnalysis,
+              caseProgress: gameState.caseProgress
+            });
+            
+            addLine('output', '');
+            addLine('system', '╔═══════════════ THEORY EVALUATION ═══════════════╗');
+            const evalLines = evaluation.split('\n');
+            evalLines.forEach(line => {
+              if (line.trim()) {
+                addLine('warning', `║ ${line.trim()}`);
+              }
+            });
+            addLine('system', '╚═══════════════════════════════════════════════════╝');
+            
+            // Award points for theory testing
+            setGameState(prev => ({
+              ...prev,
+              caseProgress: Math.min(prev.caseProgress + 5, 100)
+            }));
+            addLine('success', '💎 [CRITICAL THINKING BONUS] +50 $HACK');
+            
+          } catch (error) {
+            addLine('error', '❌ Theory evaluation system temporarily unavailable');
+          }
+        } else if (cmd.startsWith('target ')) {
           const suspectName = command.substring(7).trim();
           const suspect = gameState.currentCase?.suspects.find(s => 
             s.name.toLowerCase().includes(suspectName.toLowerCase())
@@ -338,106 +494,81 @@ const Terminal: React.FC<TerminalProps> = ({ gameState, setGameState }) => {
           } else {
             addLine('error', `❌ Target not found: ${suspectName}`);
           }
-        } else if (cmd.startsWith('execute ')) {
-          const suspectName = command.substring(8).trim();
-          const suspect = gameState.currentCase?.suspects.find(s => 
-            s.name.toLowerCase().includes(suspectName.toLowerCase())
-          );
-          
-          if (suspect && gameState.currentCase) {
-            addLine('system', '🚀 EXECUTING FINAL PAYLOAD...');
-            addLine('crypto', `🎯 Targeting ${suspect.name} for system compromise...`);
-            addLine('crypto', '⚡ Deploying smart contract exploit...');
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            if (suspect.name === gameState.currentCase.solution.culprit) {
-              addLine('success', '🎉 ═══════════ MISSION ACCOMPLISHED! ═══════════ 🎉');
-              addLine('success', `✅ Success! ${suspect.name} was the optimal target.`);
-              addLine('crypto', `💰 Reward: 1000 $HACK tokens transferred to wallet`);
-              addLine('crypto', `🖼️  NFT Reward: "Mission Complete #${Date.now()}" minted`);
-              addLine('output', '');
-              addLine('output', `🔍 Exploit Method: ${gameState.currentCase.solution.method}`);
-              addLine('output', '📊 Intelligence confirmed:');
-              gameState.currentCase.solution.evidence.forEach(evidence => {
-                addLine('warning', `  • ${evidence}`);
-              });
-              addLine('output', '');
-              addLine('system', '🚀 Mission complete. Type "hack" for another operation.');
-              setGameState(prev => ({ ...prev, isGameActive: false, caseProgress: 100 }));
-            } else {
-              addLine('error', '❌ ═══════════ EXPLOIT FAILED ═══════════');
-              addLine('error', `💥 ${suspect.name} was not the optimal target.`);
-              addLine('warning', '🔄 Mission continues. Analyze intelligence more carefully.');
-              addLine('crypto', '💸 -50 $HACK tokens penalty');
-            }
-          } else {
-            addLine('error', `❌ Cannot execute: Target not found: ${suspectName}`);
-          }
         } else {
-          addLine('error', `❌ Unknown command: ${command}`);
-          addLine('output', '💡 Type "help" for available commands.');
+          addLine('error', `❌ Unknown command: ${cmd}. Type 'help' for available commands.`);
         }
+        
+        setGameState(prev => ({
+          ...prev,
+          commandHistory: [...prev.commandHistory, command]
+        }));
     }
   };
-
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim() && !isTyping) {
       processCommand(input.trim());
-      setGameState(prev => ({
-        ...prev,
-        commandHistory: [...prev.commandHistory, input.trim()]
-      }));
       setInput('');
     }
   };
-
-  const getPrompt = () => {
-    const timestamp = new Date().toLocaleTimeString('en-US', { 
-      hour12: false, 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      second: '2-digit' 
-    });
-    return `[${timestamp}] detective@cyber-forensics`;
+  
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowUp' && gameState.commandHistory.length > 0) {
+      e.preventDefault();
+      const lastCommand = gameState.commandHistory[gameState.commandHistory.length - 1];
+      setInput(lastCommand);
+    }
   };
-
+  
   return (
-    <div className="h-full bg-transparent text-green-400 font-mono overflow-hidden flex flex-col">
+    <div className="bg-black text-green-400 font-mono text-sm h-full flex flex-col">
+      <div className="flex items-center gap-2 p-3 bg-gray-900 border-b border-gray-700">
+        <TerminalIcon className="w-4 h-4" />
+        <span className="text-xs">HACKER TYCOON v2.0 - Web3 Terminal</span>
+        <div className="ml-auto flex items-center gap-2 text-xs">
+          <Shield className="w-3 h-3" />
+          <span>SECURE</span>
+        </div>
+      </div>
+      
       <div 
         ref={terminalRef}
-        className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-600 scrollbar-track-gray-900 p-4"
+        className="flex-1 overflow-y-auto p-4 space-y-1 min-h-0"
       >
         {lines.map((line, index) => (
-          <div key={index} className={`mb-1 ${
-            line.type === 'system' ? 'text-cyan-400 font-bold' :
-            line.type === 'error' ? 'text-red-400' :
-            line.type === 'success' ? 'text-green-400 font-bold' :
-            line.type === 'warning' ? 'text-yellow-400' :
-            line.type === 'crypto' ? 'text-purple-400' :
-            line.type === 'input' ? 'text-white' :
-            'text-green-400'
-          }`}>
+          <div key={index} className={`
+            ${line.type === 'input' ? 'text-cyan-400' : ''}
+            ${line.type === 'output' ? 'text-green-400' : ''}
+            ${line.type === 'system' ? 'text-blue-400' : ''}
+            ${line.type === 'error' ? 'text-red-400' : ''}
+            ${line.type === 'success' ? 'text-green-300' : ''}
+            ${line.type === 'warning' ? 'text-yellow-400' : ''}
+            ${line.type === 'crypto' ? 'text-purple-400' : ''}
+            whitespace-pre-wrap
+          `}>
             {line.content}
           </div>
         ))}
       </div>
       
-      <form onSubmit={handleSubmit} className="border-t border-cyan-500/30 p-4 bg-black/50">
-        <div className="flex items-center space-x-2">
-          <span className="text-cyan-400 font-bold">{getPrompt()}</span>
-          <span className="text-gray-500">└─$</span>
+      <form onSubmit={handleSubmit} className="p-4 border-t border-gray-700 flex-shrink-0">
+        <div className="flex items-center gap-2">
+          <span className="text-cyan-400">┌─[hacker@tycoon]─[~]</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-cyan-400">└─$</span>
           <input
             ref={inputRef}
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="flex-1 bg-transparent border-none outline-none text-green-400 font-mono placeholder-gray-600"
+            onKeyDown={handleKeyDown}
+            className="flex-1 bg-transparent outline-none text-green-400"
             placeholder={isTyping ? "Processing..." : "Enter command..."}
             disabled={isTyping}
             autoFocus
           />
-          <div className="w-2 h-4 bg-cyan-400 animate-pulse rounded-sm"></div>
         </div>
       </form>
     </div>

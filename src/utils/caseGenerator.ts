@@ -61,21 +61,30 @@ function generateSuspect(id: string): Suspect {
 
 function generateLogs(suspects: Suspect[], baseDate: Date): LogEntry[] {
   const logs: LogEntry[] = [];
-  const actions = ['LOGIN', 'LOGOUT', 'FILE_ACCESS', 'FILE_MODIFY', 'FILE_DELETE', 'SYSTEM_ADMIN', 'DATA_EXPORT'];
-  const resources = ['/secure/customer_data.db', '/admin/user_accounts', '/backup/financial_records', '/temp/download.zip', '/system/config.xml'];
+  const actions = ['LOGIN', 'LOGOUT', 'FILE_ACCESS', 'FILE_MODIFY', 'FILE_DELETE', 'SYSTEM_ADMIN', 'DATA_EXPORT', 'VPN_CONNECT', 'PRIVILEGE_ESCALATION', 'DATABASE_QUERY'];
+  const resources = ['/secure/customer_data.db', '/admin/user_accounts', '/backup/financial_records', '/temp/download.zip', '/system/config.xml', '/logs/audit.log', '/crypto/wallet_keys', '/network/firewall_rules'];
   
-  for (let i = 0; i < 50; i++) {
+  // Choose culprit first to create suspicious patterns
+  const culprit = suspects[Math.floor(Math.random() * suspects.length)];
+  
+  for (let i = 0; i < 75; i++) {
     const suspect = suspects[Math.floor(Math.random() * suspects.length)];
     const action = actions[Math.floor(Math.random() * actions.length)];
     const resource = resources[Math.floor(Math.random() * resources.length)];
     
+    // Create suspicious patterns for the culprit
+    let isSuspicious = false;
+    if (suspect.id === culprit.id && Math.random() > 0.6) {
+      isSuspicious = true;
+    }
+    
     logs.push({
-      timestamp: generateTimestamp(baseDate, -Math.floor(Math.random() * 72)),
+      timestamp: generateTimestamp(baseDate, isSuspicious ? -Math.floor(Math.random() * 24) : -Math.floor(Math.random() * 72)),
       user: suspect.name.toLowerCase().replace(' ', '.'),
-      ip: Math.random() > 0.8 ? generateIP() : suspect.ip,
-      action,
+      ip: isSuspicious && Math.random() > 0.7 ? generateIP() : suspect.ip, // Suspicious IP changes
+      action: isSuspicious ? ['DATA_EXPORT', 'PRIVILEGE_ESCALATION', 'FILE_DELETE'][Math.floor(Math.random() * 3)] : action,
       resource,
-      status: Math.random() > 0.1 ? 'SUCCESS' : 'FAILED',
+      status: isSuspicious ? 'SUCCESS' : (Math.random() > 0.1 ? 'SUCCESS' : 'FAILED'),
       details: `${action} attempt on ${resource}`
     });
   }
@@ -85,40 +94,69 @@ function generateLogs(suspects: Suspect[], baseDate: Date): LogEntry[] {
 
 function generateEmails(suspects: Suspect[], baseDate: Date): Email[] {
   const emails: Email[] = [];
-  const subjects = [
-    'Urgent: System Maintenance Tonight',
-    'RE: Quarterly Budget Review',
-    'New Security Protocols',
-    'Weekend Work Schedule',
-    'Confidential: Project Aurora',
-    'System Access Issues'
+
+  // More realistic and varied email content
+  const emailTemplates = [
+    {
+      subject: 'Urgent: System Maintenance Tonight',
+      content: 'Please be advised that system maintenance will occur tonight from 11 PM to 3 AM. All systems will be offline during this period.',
+      suspicious: false
+    },
+    {
+      subject: 'RE: Quarterly Budget Review',
+      content: 'I need access to the financial records for the quarterly review. Can you assist with the database permissions?',
+      suspicious: false
+    },
+    {
+      subject: 'New Security Protocols',
+      content: 'The new security protocols are too restrictive. We need to discuss alternatives that won\'t impact productivity.',
+      suspicious: true
+    },
+    {
+      subject: 'Weekend Work Schedule',
+      content: 'I\'ll be working this weekend to catch up on the project deliverables. Will need extended system access.',
+      suspicious: true
+    },
+    {
+      subject: 'Confidential: Data Transfer',
+      content: 'The client data needs to be transferred to the secure server immediately. Time sensitive.',
+      suspicious: true
+    },
+    {
+      subject: 'System Access Issues',
+      content: 'I\'m having trouble accessing the customer database. Is this a known issue? Need resolution ASAP.',
+      suspicious: false
+    },
+    {
+      subject: 'Backup Verification',
+      content: 'Can someone verify the backup integrity? I noticed some inconsistencies in the logs.',
+      suspicious: true
+    },
+    {
+      subject: 'VPN Configuration',
+      content: 'Need help setting up VPN access for remote work. Current configuration seems problematic.',
+      suspicious: true
+    }
   ];
 
-  const contents = [
-    'Please be advised that system maintenance will occur tonight from 11 PM to 3 AM.',
-    'I need access to the financial records for the quarterly review. Can you assist?',
-    'The new security protocols are too restrictive. We need to discuss alternatives.',
-    'I\'ll be working this weekend to catch up on the project deliverables.',
-    'Project Aurora data needs to be transferred to the secure server immediately.',
-    'I\'m having trouble accessing the customer database. Is this a known issue?'
-  ];
-
-  for (let i = 0; i < 15; i++) {
+  for (let i = 0; i < 20; i++) {
     const fromSuspect = suspects[Math.floor(Math.random() * suspects.length)];
     const toSuspect = suspects[Math.floor(Math.random() * suspects.length)];
+    const template = emailTemplates[Math.floor(Math.random() * emailTemplates.length)];
     
     if (fromSuspect.id !== toSuspect.id) {
       emails.push({
         id: `email_${i + 1}`,
         from: `${fromSuspect.name.toLowerCase().replace(' ', '.')}@company.com`,
         to: `${toSuspect.name.toLowerCase().replace(' ', '.')}@company.com`,
-        subject: subjects[Math.floor(Math.random() * subjects.length)],
+        subject: template.subject,
         timestamp: generateTimestamp(baseDate, -Math.floor(Math.random() * 48)),
-        content: contents[Math.floor(Math.random() * contents.length)],
+        content: template.content,
         headers: {
           'Message-ID': `<${Date.now()}@company.com>`,
           'X-Originating-IP': fromSuspect.ip,
-          'User-Agent': 'Outlook Express 6.0'
+          'User-Agent': 'Outlook Express 6.0',
+          'X-Priority': template.suspicious ? 'High' : 'Normal'
         }
       });
     }
@@ -130,23 +168,30 @@ function generateEmails(suspects: Suspect[], baseDate: Date): Email[] {
 function generateChats(suspects: Suspect[], baseDate: Date): ChatMessage[] {
   const chats: ChatMessage[] = [];
   const channels = ['#general', '#it-support', '#security', '#project-aurora'];
-  const messages = [
-    'Anyone else having network issues?',
-    'The server seems slow today',
-    'Can someone check the backup logs?',
-    'I need elevated access for this task',
-    'Something strange in the access logs',
-    'Working late again tonight',
-    'The security system flagged unusual activity'
+  const messageTemplates = [
+    { text: 'Anyone else having network issues?', suspicious: false },
+    { text: 'The server seems slow today', suspicious: false },
+    { text: 'Can someone check the backup logs?', suspicious: true },
+    { text: 'I need elevated access for this task', suspicious: true },
+    { text: 'Something strange in the access logs', suspicious: true },
+    { text: 'Working late again tonight', suspicious: true },
+    { text: 'The security system flagged unusual activity', suspicious: true },
+    { text: 'Database connection keeps timing out', suspicious: false },
+    { text: 'Anyone know the admin password for the backup server?', suspicious: true },
+    { text: 'Why are there so many failed login attempts?', suspicious: true },
+    { text: 'Need to transfer some files before the audit', suspicious: true },
+    { text: 'VPN is acting weird, keeps disconnecting', suspicious: false }
   ];
 
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 40; i++) {
     const suspect = suspects[Math.floor(Math.random() * suspects.length)];
+    const template = messageTemplates[Math.floor(Math.random() * messageTemplates.length)];
+    
     chats.push({
       timestamp: generateTimestamp(baseDate, -Math.floor(Math.random() * 72)),
       user: suspect.name.toLowerCase().replace(' ', '.'),
       channel: channels[Math.floor(Math.random() * channels.length)],
-      message: messages[Math.floor(Math.random() * messages.length)],
+      message: template.text,
       edited: Math.random() > 0.9
     });
   }
@@ -162,7 +207,11 @@ function generateFiles(suspects: Suspect[], baseDate: Date): FileMetadata[] {
     'user_accounts.csv',
     'backup_config.xml',
     'security_log.txt',
-    'project_aurora.zip'
+    'project_aurora.zip',
+    'wallet_keys.enc',
+    'audit_trail.log',
+    'network_topology.json',
+    'employee_records.db'
   ];
 
   filenames.forEach((filename, index) => {
@@ -196,6 +245,12 @@ export function generateCase(): CaseFile {
   // Choose a culprit
   const culprit = suspects[Math.floor(Math.random() * suspects.length)];
   culprit.suspicionLevel = Math.floor(Math.random() * 30) + 70; // Higher suspicion
+  
+  // Add some red herrings - make another suspect moderately suspicious
+  const redHerring = suspects.find(s => s.id !== culprit.id);
+  if (redHerring) {
+    redHerring.suspicionLevel = Math.floor(Math.random() * 20) + 50;
+  }
 
   const logs = generateLogs(suspects, baseDate);
   const emails = generateEmails(suspects, baseDate);

@@ -14,7 +14,7 @@ const App: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900 text-white overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900 text-white">
       {/* Animated background grid */}
       <div className="fixed inset-0 opacity-20">
         <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.1)_1px,transparent_1px)] bg-[size:50px_50px] animate-pulse"></div>
@@ -31,7 +31,7 @@ const App: React.FC = () => {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                    Cyber Detective
+                    HACKER TYCOON
                   </h1>
                   <p className="text-xs text-gray-400">Web3 Terminal Interface v2.0</p>
                 </div>
@@ -69,7 +69,7 @@ const App: React.FC = () => {
                       <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                       <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                     </div>
-                    <span className="text-cyan-400 font-mono text-sm">detective@cyber-forensics</span>
+                    <span className="text-cyan-400 font-mono text-sm">hacker@tycoon-terminal</span>
                   </div>
                   <div className="flex items-center space-x-4 text-xs text-gray-400">
                     <span>SSH: 192.168.1.337</span>
@@ -83,7 +83,7 @@ const App: React.FC = () => {
               </div>
               
               {/* Terminal Content */}
-              <div className="h-[calc(100%-60px)]">
+              <div className="h-full">
                 <Terminal gameState={gameState} setGameState={setGameState} />
               </div>
             </div>
