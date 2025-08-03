@@ -63,17 +63,17 @@ const Terminal: React.FC<TerminalProps> = ({ gameState, setGameState }) => {
   const typewriterEffect = async (text: string, type: TerminalLine['type'] = 'output') => {
     setIsTyping(true);
     const chars = text.split('');
-    
-    // Add initial empty line that we'll update
-    setLines(prev => [...prev, { type, content: '' }]);
-    
     let currentText = '';
+    
     for (let i = 0; i < chars.length; i++) {
       currentText += chars[i];
       setLines(prev => {
         const newLines = [...prev];
-        // Update the last line (the one we added initially)
-        newLines[newLines.length - 1] = { type, content: currentText };
+        if (newLines[newLines.length - 1]?.type === 'system' && newLines[newLines.length - 1]?.content === 'PROCESSING...') {
+          newLines[newLines.length - 1] = { type, content: currentText };
+        } else {
+          newLines.push({ type, content: currentText });
+        }
         return newLines;
       });
       await new Promise(resolve => setTimeout(resolve, 15));

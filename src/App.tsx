@@ -83,7 +83,7 @@ const App: React.FC = () => {
               </div>
               
               {/* Terminal Content */}
-              <div className="h-full">
+              <div className="h-[calc(100%-60px)]">
                 <Terminal gameState={gameState} setGameState={setGameState} />
               </div>
             </div>

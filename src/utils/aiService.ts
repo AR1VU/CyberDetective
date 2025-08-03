@@ -22,7 +22,7 @@ export class AIInvestigationService {
       // Build context-aware message
       const contextualMessage = this.buildContextualMessage(userMessage, context);
       
-      const response = await fetch("/api/ai/chat/completions", {
+      const response = await fetch("https://ai.hackclub.com/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
