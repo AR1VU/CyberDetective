@@ -62,7 +62,7 @@ const App: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 container mx-auto p-6 h-[calc(100vh-80px)]">
+      <div className="relative z-10 container mx-auto p-6 h-[calc(100vh)]">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-full">
           {/* Terminal - Main interface */}
           <div className="lg:col-span-3">
@@ -76,7 +76,6 @@ const App: React.FC = () => {
                       <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                       <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                     </div>
-                    <span className="text-cyan-400 font-mono text-sm">hacker@tycoon-terminal</span>
                     <span className="text-cyan-400 font-mono text-sm">detective@cyber-forensics</span>
                   </div>
                   <div className="flex items-center space-x-4 text-xs text-gray-400">
@@ -109,7 +108,7 @@ const App: React.FC = () => {
               </div>
               
               {/* Status Panel Content */}
-              <div className="h-[calc(100%-60px)]">
+              <div className="h-[calc(100%-20px)]">
                 <StatusPanel gameState={gameState} />
               </div>
             </div>
