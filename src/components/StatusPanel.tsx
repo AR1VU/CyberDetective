@@ -34,22 +34,22 @@ const StatusPanel: React.FC<StatusPanelProps> = ({ gameState }) => {
             <Shield className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
-            HACKER TYCOON
+            CYBER DETECTIVE
           </h2>
-          <p className="text-gray-400">No active mission</p>
-          <p className="text-sm text-gray-500 mt-2">Type "hack" to begin</p>
+          <p className="text-gray-400">No active case</p>
+          <p className="text-sm text-gray-500 mt-2">Type "investigate" to begin</p>
           
-          {/* Wallet Info */}
+          {/* Profile Info */}
           <div className="mt-8 p-4 bg-purple-900/20 border border-purple-500/30 rounded-lg">
             <div className="flex items-center justify-center mb-2">
               <Coins className="w-5 h-5 mr-2 text-yellow-400" />
-              <span className="text-yellow-400 font-bold">WALLET</span>
+              <span className="text-yellow-400 font-bold">PROFILE</span>
             </div>
             <div className="text-2xl font-bold text-green-400 mb-1">
-              {hackBalance.toLocaleString()} $HACK
+              {hackBalance.toLocaleString()} Points
             </div>
             <div className="text-xs text-gray-400">
-              {Math.floor(hackBalance / 500)} NFTs owned
+              {Math.floor(hackBalance / 500)} Badges earned
             </div>
           </div>
         </div>
@@ -58,13 +58,21 @@ const StatusPanel: React.FC<StatusPanelProps> = ({ gameState }) => {
   }
 
   return (
-    <div className="h-full bg-transparent p-4 font-mono text-purple-400 overflow-y-auto">
-      {/* Mission Header */}
+    <div className="h-full bg-transparent font-mono text-purple-400 flex flex-col">
+      <div 
+        className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-track-gray-900/50 scrollbar-thumb-purple-500/50 hover:scrollbar-thumb-purple-400/70"
+        style={{ 
+          height: 'calc(100vh - 140px)',
+          maxHeight: 'calc(100vh - 140px)',
+          minHeight: 'calc(100vh - 140px)'
+        }}
+      >
+      {/* Case Header */}
       <div className="mb-6">
         <div className="flex items-center mb-3">
           <Zap className="w-5 h-5 mr-2 text-yellow-400" />
           <h2 className="text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            ACTIVE MISSION
+            ACTIVE CASE
           </h2>
         </div>
         <div className={`inline-block px-3 py-1 rounded-lg text-xs font-bold border ${getSeverityColor(gameState.currentCase.severity)}`}>
@@ -72,14 +80,14 @@ const StatusPanel: React.FC<StatusPanelProps> = ({ gameState }) => {
         </div>
       </div>
 
-      {/* Mission Details */}
+      {/* Case Details */}
       <div className="mb-6 space-y-3 text-sm">
         <div className="p-3 bg-gray-900/30 border border-purple-500/20 rounded-lg">
-          <span className="text-gray-400 text-xs uppercase tracking-wide">Target Corporation</span>
+          <span className="text-gray-400 text-xs uppercase tracking-wide">Company</span>
           <div className="text-purple-300 font-bold">{gameState.currentCase.company}</div>
         </div>
         <div className="p-3 bg-gray-900/30 border border-purple-500/20 rounded-lg">
-          <span className="text-gray-400 text-xs uppercase tracking-wide">Operation Type</span>
+          <span className="text-gray-400 text-xs uppercase tracking-wide">Incident Type</span>
           <div className="text-purple-300 font-bold">{gameState.currentCase.attackType}</div>
         </div>
         <div className="p-3 bg-gray-900/30 border border-purple-500/20 rounded-lg">
@@ -91,7 +99,7 @@ const StatusPanel: React.FC<StatusPanelProps> = ({ gameState }) => {
       {/* Progress */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-gray-400 text-sm uppercase tracking-wide">Mission Progress</span>
+          <span className="text-gray-400 text-sm uppercase tracking-wide">Case Progress</span>
           <span className="text-cyan-400 text-sm font-bold">{gameState.caseProgress}%</span>
         </div>
         <div className="w-full bg-gray-800/50 rounded-full h-3 border border-purple-500/20">
@@ -102,30 +110,34 @@ const StatusPanel: React.FC<StatusPanelProps> = ({ gameState }) => {
             <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
           </div>
         </div>
+        <div className="flex justify-between text-xs text-gray-400 mt-2">
+          <span>Commands: {gameState.gameMetrics.commandCount}</span>
+          <span>Time: {Math.floor((Date.now() - gameState.gameMetrics.startTime) / 60000)}m</span>
+        </div>
       </div>
 
-      {/* Wallet Status */}
+      {/* Profile Status */}
       <div className="mb-6 p-4 bg-gradient-to-r from-purple-900/30 to-pink-900/30 border border-purple-500/30 rounded-lg">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center">
             <Coins className="w-4 h-4 mr-2 text-yellow-400" />
-            <span className="text-yellow-400 font-bold text-sm">$HACK BALANCE</span>
+            <span className="text-yellow-400 font-bold text-sm">POINTS</span>
           </div>
           <div className="text-green-400 font-bold">
             {hackBalance.toLocaleString()}
           </div>
         </div>
         <div className="flex items-center justify-between text-xs">
-          <span className="text-gray-400">NFTs Owned</span>
+          <span className="text-gray-400">Badges Earned</span>
           <span className="text-purple-400">{Math.floor(hackBalance / 500)}</span>
         </div>
       </div>
 
-      {/* Intel Collected */}
+      {/* Evidence Collected */}
       <div className="mb-6">
         <h3 className="text-purple-400 font-bold mb-3 flex items-center text-sm uppercase tracking-wide">
           <Database className="w-4 h-4 mr-2" />
-          INTEL ACQUIRED ({gameState.discoveredEvidence.length})
+          EVIDENCE ACQUIRED ({gameState.discoveredEvidence.length})
         </h3>
         <div className="space-y-2">
           {gameState.discoveredEvidence.map((evidence, index) => {
@@ -138,7 +150,7 @@ const StatusPanel: React.FC<StatusPanelProps> = ({ gameState }) => {
                   <div className="text-purple-300 font-medium">
                     {evidence.replace(/_/g, ' ').toUpperCase()}
                   </div>
-                  <div className="text-xs text-gray-400">+{rewardAmount} $HACK</div>
+                  <div className="text-xs text-gray-400">+{rewardAmount} Points</div>
                 </div>
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
               </div>
@@ -146,17 +158,17 @@ const StatusPanel: React.FC<StatusPanelProps> = ({ gameState }) => {
           })}
           {gameState.discoveredEvidence.length === 0 && (
             <div className="text-center py-4 text-gray-500 text-sm">
-              No intel acquired yet
+              No evidence acquired yet
             </div>
           )}
         </div>
       </div>
 
-      {/* Target Analysis */}
+      {/* Suspect Analysis */}
       <div className="mb-6">
         <h3 className="text-purple-400 font-bold mb-3 flex items-center text-sm uppercase tracking-wide">
           <User className="w-4 h-4 mr-2" />
-          TARGET ANALYSIS ({gameState.currentCase.suspects.length})
+          SUSPECT ANALYSIS ({gameState.currentCase.suspects.length})
         </h3>
         <div className="space-y-2">
           {gameState.currentCase.suspects
@@ -209,18 +221,19 @@ const StatusPanel: React.FC<StatusPanelProps> = ({ gameState }) => {
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center text-green-400">
             <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse mr-2"></div>
-            BLOCKCHAIN SYNC
+            DATABASE SYNC
           </div>
           <span className="text-gray-400">100%</span>
         </div>
         <div className="flex items-center justify-between text-xs mt-1">
-          <span className="text-gray-400">Gas Price</span>
-          <span className="text-purple-400">21 gwei</span>
+          <span className="text-gray-400">Network Latency</span>
+          <span className="text-purple-400">21ms</span>
         </div>
         <div className="flex items-center justify-between text-xs mt-1">
-          <span className="text-gray-400">Block Height</span>
-          <span className="text-cyan-400">#18,542,337</span>
+          <span className="text-gray-400">Case Database</span>
+          <span className="text-cyan-400">v18.542.337</span>
         </div>
+      </div>
       </div>
     </div>
   );

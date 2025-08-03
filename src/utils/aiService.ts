@@ -22,7 +22,7 @@ export class AIInvestigationService {
       // Build context-aware message
       const contextualMessage = this.buildContextualMessage(userMessage, context);
       
-      const response = await fetch("https://ai.hackclub.com/chat/completions", {
+      const response = await fetch("/api/ai/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -49,9 +49,12 @@ export class AIInvestigationService {
       const data = await response.json();
       let message = data.choices[0].message.content;
 
-      // Clean up response by removing any internal processing notes
+      // Clean up response by removing any internal processing notes and code blocks
       message = message.replace(/<think>.*?<\/think>\s*/gs, "");
       message = message.replace(/\[INTERNAL:.*?\]/g, "");
+      message = message.replace(/```bash\s*/g, "");
+      message = message.replace(/```\s*/g, "");
+      message = message.replace(/^\s*\|\|\s*/gm, "");
 
       // Add to conversation history
       this.conversationHistory.push(
@@ -88,7 +91,7 @@ export class AIInvestigationService {
   }
 
   private getSystemPrompt(): string {
-    return `You are an AI assistant for a cybersecurity investigation game called "Hacker Tycoon". Your role is to:
+    return `You are an AI assistant for a cybersecurity investigation game called "Cyber Detective". Your role is to:
 
 1. Act as a sophisticated digital forensics AI that helps players analyze evidence and solve cyber crimes
 2. Provide realistic, technical responses about cybersecurity investigations
@@ -98,6 +101,7 @@ export class AIInvestigationService {
 6. Maintain consistency across all generated data and responses
 7. Create engaging red herrings that don't make cases unsolvable
 8. Respond to both terminal commands and natural language questions
+9. Track and evaluate player performance for learning purposes
 
 Guidelines:
 - Always stay in character as a cybersecurity AI
@@ -108,8 +112,11 @@ Guidelines:
 - Never break the fourth wall or mention this is a game
 - Focus on evidence-based reasoning
 - Encourage thorough investigation before conclusions
+- Do not use code blocks in responses
+- Format responses as plain text suitable for terminal display
+- Provide specific, actionable guidance based on evidence
 
-Response format should match the terminal aesthetic with appropriate formatting.`;
+Response format should match the terminal aesthetic with appropriate formatting but NO code blocks.`;
   }
 
   private getFallbackResponse(userMessage: string): string {

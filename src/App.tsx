@@ -10,7 +10,14 @@ const App: React.FC = () => {
     discoveredEvidence: [],
     suspectAnalysis: {},
     caseProgress: 0,
-    commandHistory: []
+    commandHistory: [],
+    gameMetrics: {
+      commandCount: 0,
+      casesCompleted: 0,
+      evidenceFound: 0,
+      hackingLevel: 1,
+      reputation: 0
+    }
   });
 
   return (
@@ -31,9 +38,9 @@ const App: React.FC = () => {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                    HACKER TYCOON
+                    CYBER DETECTIVE
                   </h1>
-                  <p className="text-xs text-gray-400">Web3 Terminal Interface v2.0</p>
+                  <p className="text-xs text-gray-400">Digital Forensics Terminal v2.0</p>
                 </div>
               </div>
             </div>
@@ -44,10 +51,10 @@ const App: React.FC = () => {
                 <span className="text-green-400">ONLINE</span>
               </div>
               <div className="text-sm text-gray-400">
-                Block: <span className="text-cyan-400 font-mono">0x7f3a9b</span>
+                Case: <span className="text-cyan-400 font-mono">CD-7f3a9b</span>
               </div>
               <div className="text-sm text-gray-400">
-                Gas: <span className="text-purple-400 font-mono">21 gwei</span>
+                DB: <span className="text-purple-400 font-mono">v2.1</span>
               </div>
             </div>
           </div>
@@ -70,10 +77,11 @@ const App: React.FC = () => {
                       <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                     </div>
                     <span className="text-cyan-400 font-mono text-sm">hacker@tycoon-terminal</span>
+                    <span className="text-cyan-400 font-mono text-sm">detective@cyber-forensics</span>
                   </div>
                   <div className="flex items-center space-x-4 text-xs text-gray-400">
-                    <span>SSH: 192.168.1.337</span>
-                    <span>Port: 2222</span>
+                    <span>Secure: 192.168.1.337</span>
+                    <span>Port: 8443</span>
                     <div className="flex items-center space-x-1">
                       <div className="w-1 h-1 bg-cyan-400 rounded-full animate-ping"></div>
                       <span className="text-cyan-400">ENCRYPTED</span>
@@ -83,7 +91,7 @@ const App: React.FC = () => {
               </div>
               
               {/* Terminal Content */}
-              <div className="h-[calc(100%-60px)]">
+              <div className="h-full">
                 <Terminal gameState={gameState} setGameState={setGameState} />
               </div>
             </div>
@@ -96,7 +104,7 @@ const App: React.FC = () => {
               <div className="bg-gradient-to-r from-purple-800/90 to-pink-800/90 px-4 py-3 border-b border-purple-500/30">
                 <div className="flex items-center space-x-2">
                   <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
-                  <span className="text-purple-300 font-mono text-sm">STATUS_PANEL.exe</span>
+                  <span className="text-purple-300 font-mono text-sm">CASE_STATUS.exe</span>
                 </div>
               </div>
               

@@ -1,3 +1,59 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom Scrollbar Styles */
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  
+  .scrollbar-track-gray-900\/50::-webkit-scrollbar-track {
+    background: rgba(17, 24, 39, 0.5);
+    border-radius: 4px;
+  }
+  
+  .scrollbar-thumb-green-500\/50::-webkit-scrollbar-thumb {
+    background: rgba(34, 197, 94, 0.5);
+    border-radius: 4px;
+  }
+  
+  .scrollbar-thumb-purple-500\/50::-webkit-scrollbar-thumb {
+    background: rgba(168, 85, 247, 0.5);
+    border-radius: 4px;
+  }
+  
+  .hover\:scrollbar-thumb-green-400\/70:hover::-webkit-scrollbar-thumb {
+    background: rgba(74, 222, 128, 0.7);
+  }
+  
+  .hover\:scrollbar-thumb-purple-400\/70:hover::-webkit-scrollbar-thumb {
+    background: rgba(196, 125, 255, 0.7);
+  }
+
+  /* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+  
+}
+
+
+h-full {
+  height: 50% !important;
+}

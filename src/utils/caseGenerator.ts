@@ -1,7 +1,17 @@
 import { CaseFile, Suspect, LogEntry, Email, ChatMessage, FileMetadata } from '../types/game';
 
 const companies = ['TechCorp Industries', 'DataFlow Solutions', 'CyberSecure Inc', 'QuantumByte LLC', 'NexusNet Systems'];
-const attackTypes = ['Data Breach', 'Ransomware Attack', 'Insider Threat', 'APT Infiltration', 'Financial Fraud'];
+const industries = ['Technology', 'Finance', 'Healthcare', 'Manufacturing', 'Retail', 'Government', 'Education'];
+const companyTemplates = {
+  Technology: ['TechCorp Industries', 'DataFlow Solutions', 'CyberSecure Inc', 'QuantumByte LLC', 'NexusNet Systems', 'CloudVault Technologies', 'ByteStream Solutions'],
+  Finance: ['SecureBank Corp', 'FinTech Innovations', 'Capital Trust Holdings', 'Digital Payments Inc', 'CryptoVault Financial', 'Investment Solutions Ltd'],
+  Healthcare: ['MedSecure Systems', 'HealthData Corp', 'BioTech Solutions', 'Patient Care Networks', 'Medical Records Inc', 'Healthcare Analytics'],
+  Manufacturing: ['Industrial Systems Corp', 'AutoTech Manufacturing', 'Supply Chain Solutions', 'Production Networks Inc', 'Factory Automation Ltd'],
+  Retail: ['E-Commerce Solutions', 'Retail Analytics Corp', 'Customer Data Systems', 'Shopping Networks Inc', 'Point-of-Sale Technologies'],
+  Government: ['Municipal Systems', 'Public Services Corp', 'Government Data Center', 'Civic Technology Solutions', 'Public Safety Networks'],
+  Education: ['University Systems', 'Student Data Corp', 'Educational Technology', 'Campus Networks Inc', 'Learning Management Systems']
+};
+const attackTypes = ['Data Breach', 'Ransomware Attack', 'Insider Threat', 'APT Infiltration', 'Financial Fraud', 'Phishing Campaign', 'Zero-Day Exploit', 'Supply Chain Attack', 'Social Engineering'];
 const departments = ['IT', 'Finance', 'HR', 'Operations', 'Marketing', 'Security'];
 const roles = ['Developer', 'Analyst', 'Manager', 'Administrator', 'Consultant', 'Intern'];
 
@@ -59,7 +69,7 @@ function generateSuspect(id: string): Suspect {
   };
 }
 
-function generateLogs(suspects: Suspect[], baseDate: Date): LogEntry[] {
+function generateLogs(suspects: Suspect[], baseDate: Date, logCount: number): LogEntry[] {
   const logs: LogEntry[] = [];
   const actions = ['LOGIN', 'LOGOUT', 'FILE_ACCESS', 'FILE_MODIFY', 'FILE_DELETE', 'SYSTEM_ADMIN', 'DATA_EXPORT', 'VPN_CONNECT', 'PRIVILEGE_ESCALATION', 'DATABASE_QUERY'];
   const resources = ['/secure/customer_data.db', '/admin/user_accounts', '/backup/financial_records', '/temp/download.zip', '/system/config.xml', '/logs/audit.log', '/crypto/wallet_keys', '/network/firewall_rules'];
@@ -67,7 +77,7 @@ function generateLogs(suspects: Suspect[], baseDate: Date): LogEntry[] {
   // Choose culprit first to create suspicious patterns
   const culprit = suspects[Math.floor(Math.random() * suspects.length)];
   
-  for (let i = 0; i < 75; i++) {
+  for (let i = 0; i < logCount; i++) {
     const suspect = suspects[Math.floor(Math.random() * suspects.length)];
     const action = actions[Math.floor(Math.random() * actions.length)];
     const resource = resources[Math.floor(Math.random() * resources.length)];
@@ -92,7 +102,7 @@ function generateLogs(suspects: Suspect[], baseDate: Date): LogEntry[] {
   return logs.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 }
 
-function generateEmails(suspects: Suspect[], baseDate: Date): Email[] {
+function generateEmails(suspects: Suspect[], baseDate: Date, emailCount: number): Email[] {
   const emails: Email[] = [];
 
   // More realistic and varied email content
@@ -139,7 +149,7 @@ function generateEmails(suspects: Suspect[], baseDate: Date): Email[] {
     }
   ];
 
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < emailCount; i++) {
     const fromSuspect = suspects[Math.floor(Math.random() * suspects.length)];
     const toSuspect = suspects[Math.floor(Math.random() * suspects.length)];
     const template = emailTemplates[Math.floor(Math.random() * emailTemplates.length)];
@@ -165,7 +175,7 @@ function generateEmails(suspects: Suspect[], baseDate: Date): Email[] {
   return emails.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 }
 
-function generateChats(suspects: Suspect[], baseDate: Date): ChatMessage[] {
+function generateChats(suspects: Suspect[], baseDate: Date, chatCount: number): ChatMessage[] {
   const chats: ChatMessage[] = [];
   const channels = ['#general', '#it-support', '#security', '#project-aurora'];
   const messageTemplates = [
@@ -183,7 +193,7 @@ function generateChats(suspects: Suspect[], baseDate: Date): ChatMessage[] {
     { text: 'VPN is acting weird, keeps disconnecting', suspicious: false }
   ];
 
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < chatCount; i++) {
     const suspect = suspects[Math.floor(Math.random() * suspects.length)];
     const template = messageTemplates[Math.floor(Math.random() * messageTemplates.length)];
     
@@ -231,14 +241,22 @@ function generateFiles(suspects: Suspect[], baseDate: Date): FileMetadata[] {
   return files;
 }
 
-export function generateCase(): CaseFile {
-  const company = companies[Math.floor(Math.random() * companies.length)];
+export function generateCase(difficulty: 'EASY' | 'MEDIUM' | 'HARD' | 'EXPERT' = 'MEDIUM'): CaseFile {
+  const industry = industries[Math.floor(Math.random() * industries.length)];
+  const companyList = companyTemplates[industry as keyof typeof companyTemplates];
+  const company = companyList[Math.floor(Math.random() * companyList.length)];
   const attackType = attackTypes[Math.floor(Math.random() * attackTypes.length)];
   const baseDate = new Date();
   baseDate.setHours(baseDate.getHours() - Math.floor(Math.random() * 72));
 
+  // Adjust complexity based on difficulty
+  const suspectCount = difficulty === 'EASY' ? 4 : difficulty === 'MEDIUM' ? 6 : difficulty === 'HARD' ? 8 : 10;
+  const logCount = difficulty === 'EASY' ? 50 : difficulty === 'MEDIUM' ? 75 : difficulty === 'HARD' ? 100 : 150;
+  const emailCount = difficulty === 'EASY' ? 15 : difficulty === 'MEDIUM' ? 20 : difficulty === 'HARD' ? 30 : 40;
+  const chatCount = difficulty === 'EASY' ? 25 : difficulty === 'MEDIUM' ? 40 : difficulty === 'HARD' ? 60 : 80;
+
   const suspects: Suspect[] = [];
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < suspectCount; i++) {
     suspects.push(generateSuspect(`suspect_${i + 1}`));
   }
 
@@ -252,17 +270,18 @@ export function generateCase(): CaseFile {
     redHerring.suspicionLevel = Math.floor(Math.random() * 20) + 50;
   }
 
-  const logs = generateLogs(suspects, baseDate);
-  const emails = generateEmails(suspects, baseDate);
-  const chats = generateChats(suspects, baseDate);
+  const logs = generateLogs(suspects, baseDate, logCount);
+  const emails = generateEmails(suspects, baseDate, emailCount);
+  const chats = generateChats(suspects, baseDate, chatCount);
   const files = generateFiles(suspects, baseDate);
 
   return {
     id: `case_${Date.now()}`,
-    title: `Operation: ${attackType} Investigation`,
+    title: `Case: ${attackType} Investigation`,
     company,
+    industry,
     attackType,
-    description: `${company} has reported a ${attackType.toLowerCase()} incident. Initial analysis suggests internal involvement. Digital forensics required to identify the perpetrator and attack vector.`,
+    description: `${company} (${industry} sector) has reported a ${attackType.toLowerCase()} incident. Initial analysis suggests ${Math.random() > 0.5 ? 'internal involvement' : 'external threat actor'}. Digital forensics investigation required to identify the perpetrator and attack vector.`,
     severity: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'][Math.floor(Math.random() * 4)] as any,
     timeframe: `${Math.floor(Math.random() * 72) + 24} hours ago`,
     suspects,

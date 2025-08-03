@@ -79,4 +79,15 @@ export interface GameState {
   suspectAnalysis: Record<string, number>;
   caseProgress: number;
   isGameActive: boolean;
+  gameMetrics: {
+    startTime: number;
+    commandCount: number;
+    queriesIssued: number;
+    hintsUsed: number;
+    theoriesSubmitted: number;
+    accuracy: number;
+  };
+  difficulty: 'EASY' | 'MEDIUM' | 'HARD' | 'EXPERT';
+  playerLevel: number;
+  casesCompleted: number;
 }
